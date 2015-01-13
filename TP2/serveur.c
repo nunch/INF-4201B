@@ -401,8 +401,10 @@ int main (int argc, char* argv[]) {
 				sendRelease();
 				printf("Je sors de SC\n");
 			}
+			int truc = rand()%10;
+			printf("truc %d\n", truc);
 			
-			if(rand()%10 > 7 && isInSC == 0) {
+			if(truc > 7 && isInSC == 0) {
 				// demand SC
 				printf("Je veux rentrer en SC\n");
 				horloge++;
@@ -412,7 +414,7 @@ int main (int argc, char* argv[]) {
 				sendRequest();
 			}
 
-			if(rand()%10 < 5) {
+			if(truc < 5) {
 				horloge++;
 			}
 
