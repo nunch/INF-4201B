@@ -237,7 +237,7 @@ void sendRelease(){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|release", horloge, id);
 	//pop(FILEi);
-	delete_queue(FILEi,id);
+	delete_queue(FILEi,idd);
 	sendMsg(msg);
 }
 

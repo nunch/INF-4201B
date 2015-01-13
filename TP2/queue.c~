@@ -88,17 +88,15 @@ int size(struct queue *q)
     int cnt = 0;
     if (q->front  ==  NULL)
     {
-        printf(" queue empty \n");
+        //printf(" queue empty \n");
         return 0;
     }
-	printf("queue :");
     while (temp)
     {
-        printf("%d ", temp->data);
+        //printf("%d ", temp->data);
         temp = temp->link;
         cnt++;
     }
-    printf("\n");
     return cnt;
 }
 
