@@ -140,7 +140,7 @@ int sendMsg(char* request){
 	return 0;
 }
 
-int sendMsg(char* Msg, int idd){
+int sendMsg2(char* Msg, int idd){
 	int i;
 	struct hostent* hp;
 	int sock;
@@ -250,7 +250,7 @@ void sendRequest(){
 void sendResponse(int idd){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|response", horloge, id);
-	sendMsg(msg,idd);
+	sendMsg2(msg,idd);
 }
 
 void receiveRelease(int horlogee, int idd){
