@@ -388,11 +388,11 @@ int main (int argc, char* argv[]) {
 			printf("%s\n", texte);
 
 			if(!strcmp(msg_received, "release")){
-				receiveRelease(horloge_received,id_received);
+				//receiveRelease(horloge_received,id_received);
 			}else if(!strcmp(msg_received, "request")){
-				receiveRequest(horloge_received,id_received);
+				//receiveRequest(horloge_received,id_received);
 			}else if(!strcmp(msg_received, "response")){
-				receiveResponse(horloge_received,id_received);
+				//receiveResponse(horloge_received,id_received);
 			}
 			close (s_service);
 		}
