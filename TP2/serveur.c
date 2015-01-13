@@ -385,6 +385,7 @@ int main (int argc, char* argv[]) {
 			int horloge_received, id_received;
 			char* msg_received=NULL;
 			decodeMessage(texte, &horloge_received, &id_received, msg_received);
+			printf("%s\n", texte);
 
 			if(!strcmp(msg_received, "release")){
 				receiveRelease(horloge_received,id_received);
@@ -396,11 +397,14 @@ int main (int argc, char* argv[]) {
 
 			// push in queue
 			if(isInSC && isReady() && front(FILEi)==id){
+				printf("Je rentre en SC\n");
 				sendRelease();
+				printf("Je sors de SC\n");
 			}
 			
 			if(rand()%10 > 7 && !isInSC) {
 				// demand SC
+				printf("Je veux rentrer en SC\n");
 				horloge++;
 				isInSC=1;
 				for(i=0;i<NSites;i++) Responses[i] = 0;
