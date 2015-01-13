@@ -100,7 +100,7 @@ int size(struct queue *q)
     return cnt;
 }
 
-int delete(struct queue *q, int del){
+int delete_queue(struct queue *q, int del){
     struct node *temp;
  
     temp = q->front;

@@ -93,7 +93,7 @@ int GetSitePos(int NbSites, char *argv[]) {
 	return (-1);
 }
 
-void getSites(char *argv[]){
+void getSites(int NbSites, char *argv[]){
 	char MySiteName[20]; 
 	int i;
 	int num=0;
@@ -163,7 +163,7 @@ int sendMsg(char* Msg, int idd){
 		perror("Probleme connect");
 		return -1;
 	}
-	write(sock,request,strlen(request)+1);
+	write(sock,Msg,strlen(Msg)+1);
 	close(sock);
 	return 0;
 }
@@ -236,7 +236,7 @@ void SendSync(char *Site, int Port) {
 void sendRelease(){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|release", horloge, id);
-	delete(FILEi,id);
+	delete_queue(FILEi,id);
 	sendMsg(msg);
 }
 
@@ -247,7 +247,7 @@ void sendRequest(){
 	sendMsg(msg);
 }
 
-void sendResponse(){
+void sendResponse(int idd){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|response", horloge, id);
 	sendMsg(msg,idd);
@@ -256,7 +256,7 @@ void sendResponse(){
 void receiveRelease(int horlogee, int idd){
 	// HORLOGE
 	horloge = max(++horloge, horlogee);
-	delete(FILEi,idd);
+	delete_queue(FILEi,idd);
 }
 
 void receiveRequest(int horlogee, int idd){
@@ -266,6 +266,7 @@ void receiveRequest(int horlogee, int idd){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|response", horlogee, idd);
 	sendMsg(msg);
+	sendResponse(idd);
 }
 
 void receiveResponse(int horlogee, int idd){
@@ -404,7 +405,7 @@ int main (int argc, char* argv[]) {
 				isInSC=1;
 				for(i=0;i<NSites;i++) Responses[i] = 0;
 				Responses[GetSitePos(NSites, argv)] = 1;
-				sendMsg(NSites);
+				sendRequest();
 			}
 
 			if(rand()%10 < 5) {
