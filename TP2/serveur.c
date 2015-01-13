@@ -394,6 +394,8 @@ int main (int argc, char* argv[]) {
 			}else if(!strcmp(msg_received, "response")){
 				receiveResponse(horloge_received,id_received);
 			}
+			close (s_service);
+		}
 
 			// push in queue
 			if(isInSC == 1 && isReady() && front(FILEi)==id){
@@ -418,8 +420,8 @@ int main (int argc, char* argv[]) {
 				horloge++;
 			}
 
-			close (s_service);
-		}
+			//close (s_service);
+		
 	
 
 		/* Petite boucle d'attente : c'est ici que l'on peut faire des choses*/
