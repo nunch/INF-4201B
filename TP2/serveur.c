@@ -255,11 +255,13 @@ void sendResponse(){
 
 void receiveRelease(int horlogee, int idd){
 	// HORLOGE
+	horloge = max(++horloge, horlogee);
 	delete(FILEi,idd);
 }
 
 void receiveRequest(int horlogee, int idd){
 	// HORLOGE
+	horloge = max(++horloge, horlogee);
 	push(FILEi,idd);
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|response", horlogee, idd);
@@ -267,7 +269,8 @@ void receiveRequest(int horlogee, int idd){
 }
 
 void receiveResponse(int horlogee, int idd){
-	// HORLOGE ??
+	// HORLOGE
+	horloge = max(++horloge, horlogee);
 	Responses[idd] = 1;
 	isInSC = 0;
 }
@@ -382,8 +385,6 @@ int main (int argc, char* argv[]) {
 			char* msg_received=NULL;
 			decodeMessage(texte, &horloge_received, &id_received, msg_received);
 
-			horloge = max(horloge, horloge_received);
-
 			if(!strcmp(msg_received, "release")){
 				receiveRelease(horloge_received,id_received);
 			}else if(!strcmp(msg_received, "request")){
@@ -399,10 +400,15 @@ int main (int argc, char* argv[]) {
 			
 			if(rand()%10 > 7 && !isInSC) {
 				// demand SC
+				horloge++;
 				isInSC=1;
 				for(i=0;i<NSites;i++) Responses[i] = 0;
 				Responses[GetSitePos(NSites, argv)] = 1;
 				sendMsg(NSites);
+			}
+
+			if(rand()%10 < 5) {
+				horloge++;
 			}
 
 			close (s_service);
