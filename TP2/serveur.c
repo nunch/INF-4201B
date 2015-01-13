@@ -353,6 +353,7 @@ int main (int argc, char* argv[]) {
 			if(rand()%10 > 7 && !isInSC) {
 				// demand SC
 				isInSC=1;
+				for(i=0;i<NSites;i++) Responses[i] = 0;
 				sendRequest(NSites);
 			}
 
