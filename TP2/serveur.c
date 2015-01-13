@@ -387,20 +387,20 @@ int main (int argc, char* argv[]) {
 			decodeMessage(texte, &horloge_received, &id_received, msg_received);
 			printf("%s\n", texte);
 
-			/*if(!strcmp(msg_received, "release")){
-				receiveRelease(horloge_received,id_received);
+			if(!strcmp(msg_received, "release")){
+			//	receiveRelease(horloge_received,id_received);
 			}else if(!strcmp(msg_received, "request")){
-				receiveRequest(horloge_received,id_received);
+			//	receiveRequest(horloge_received,id_received);
 			}else if(!strcmp(msg_received, "response")){
-				receiveResponse(horloge_received,id_received);
-			}*/
+			//	receiveResponse(horloge_received,id_received);
+			}
 			close (s_service);
 		}
 
 			// push in queue
 			if(isInSC == 1 && isReady() && front(FILEi)==id){
 				printf("Je rentre en SC\n");
-				//sendRelease();
+				sendRelease();
 				printf("Je sors de SC\n");
 			}
 			int truc = rand()%10;
