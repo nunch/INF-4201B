@@ -108,7 +108,7 @@ void getSites(char *argv[]){
 	}
 }
 
-int sendRequest(char* request){
+int sendMsg(char* request){
 	int i;
 	struct hostent* hp;
 	int sock;
@@ -137,6 +137,34 @@ int sendRequest(char* request){
 			close(sock);
 		}
 	}
+	return 0;
+}
+
+int sendMsg(char* Msg, int idd){
+	int i;
+	struct hostent* hp;
+	int sock;
+	socklen_t size;
+	struct sockaddr_in sock_add;
+	char MySiteName[20];
+	gethostname(MySiteName, 20);
+	hp = gethostbyname(Sites[idd]);
+	if(hp==NULL) return -1;
+	size = sizeof(sock_add);
+
+	sock_add.sin_family = AF_INET;
+	sock_add.sin_port = htons(Ports[idd]);
+	memcpy(&sock_add.sin_addr.s_addr, hp->h_addr, hp->h_length);
+	if ( (sock=socket(AF_INET, SOCK_STREAM,0))==-1) {
+		perror("Creation socket");
+		return -1;
+	}
+	if (connect(sock, (struct sockaddr*) &sock_add,size )==-1) {
+		perror("Probleme connect");
+		return -1;
+	}
+	write(sock,request,strlen(request)+1);
+	close(sock);
 	return 0;
 }
 
@@ -208,32 +236,48 @@ void SendSync(char *Site, int Port) {
 void sendRelease(){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|release", horloge, id);
-	sendRequest(msg);
+	delete(FILEi,id);
+	sendMsg(msg);
 }
 
 void sendRequest(){
 	push(FILEi,id);
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|request", horloge, id);
-	sendRequest(msg);
+	sendMsg(msg);
 }
 
 void sendResponse(){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|response", horloge, id);
-	sendRequest(msg);
+	sendMsg(msg,idd);
 }
 
-void receiveRelease(int horloge, int id){
-	
+void receiveRelease(int horlogee, int idd){
+	// HORLOGE
+	delete(FILEi,idd);
 }
 
-void receiveRequest(int horloge, int id){
-	
+void receiveRequest(int horlogee, int idd){
+	// HORLOGE
+	push(FILEi,idd);
+	char *msg = (char*) malloc(50*sizeof(char));
+	sprintf(msg, "%d|%d|response", horlogee, idd);
+	sendMsg(msg);
 }
 
-void receiveResponse(int horloge, int id){
-	
+void receiveResponse(int horlogee, int idd){
+	// HORLOGE ??
+	Responses[idd] = 1;
+	isInSC = 0;
+}
+
+int isReady(){
+	int i;
+	for(i=0;i<NSites;i++){
+		if(Responses[i] == 0) return 0;
+	}
+	return 1;
 }
 
 /***********************************************************************/
@@ -349,12 +393,16 @@ int main (int argc, char* argv[]) {
 			}
 
 			// push in queue
+			if(isInSC && isReady() && front(FILEi)==id){
+				sendRelease();
+			}
 			
 			if(rand()%10 > 7 && !isInSC) {
 				// demand SC
 				isInSC=1;
 				for(i=0;i<NSites;i++) Responses[i] = 0;
-				sendRequest(NSites);
+				Responses[GetSitePos(NSites, argv)] = 1;
+				sendMsg(NSites);
 			}
 
 			close (s_service);
