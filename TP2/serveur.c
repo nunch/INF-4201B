@@ -61,6 +61,13 @@ int horloge=0;
 int id;
 struct queue *FILEi;
 
+int *Responses;
+
+int NSites;
+
+int isInSC = 0;
+
+
 
 int GetSitePos(int Nbsites, char *argv[]) ;
 void WaitSync(int socket);
@@ -86,13 +93,13 @@ int GetSitePos(int NbSites, char *argv[]) {
 	return (-1);
 }
 
-void getSites(int NbSites, char *argv[]){
+void getSites(char *argv[]){
 	char MySiteName[20]; 
 	int i;
 	int num=0;
 	int port0 = atoi(argv[1]);
 	gethostname(MySiteName, 20);
-	for (i=0;i<NbSites;i++) {
+	for (i=0;i<NSites;i++) {
 		strcpy(Sites[num], argv[i+2]);
 		if(strcmp(Sites[i],MySiteName)) id = i;
 		Ports[num] = port0;
@@ -101,7 +108,7 @@ void getSites(int NbSites, char *argv[]){
 	}
 }
 
-int sendRequest(int NbSites, char* request){
+int sendRequest(char* request){
 	int i;
 	struct hostent* hp;
 	int sock;
@@ -109,7 +116,7 @@ int sendRequest(int NbSites, char* request){
 	struct sockaddr_in sock_add;
 	char MySiteName[20];
 	gethostname(MySiteName, 20);
-	for(i=0;i<NbSites;i++){
+	for(i=0;i<NSites;i++){
 		if(!strcmp(Sites[i], MySiteName)){
 			hp = gethostbyname(Sites[i]);
 			if(hp==NULL) return -1;
@@ -198,23 +205,23 @@ void SendSync(char *Site, int Port) {
 	close (s_emis); 
 }
 
-void sendRelease(int NbSites){
+void sendRelease(){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|release", horloge, id);
-	sendRequest(NbSites, msg);
+	sendRequest(msg);
 }
 
-void sendRequest(int NbSites){
+void sendRequest(){
 	push(FILEi,id);
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|request", horloge, id);
-	sendRequest(NbSites, msg);
+	sendRequest(msg);
 }
 
-void sendResponse(int NbSites){
+void sendResponse(){
 	char *msg = (char*) malloc(50*sizeof(char));
 	sprintf(msg, "%d|%d|response", horloge, id);
-	sendRequest(NbSites, msg);
+	sendRequest(msg);
 }
 
 void receiveRelease(int horloge, int id){
@@ -247,7 +254,7 @@ int main (int argc, char* argv[]) {
 	//float t;
 
 	int PortBase=-1; /*Numero du port de la socket a` creer*/
-	int NSites=-1; /*Nb total de sites*/
+	NSites=-1; /*Nb total de sites*/
 
 
 	if (argc<3) {
@@ -261,6 +268,7 @@ int main (int argc, char* argv[]) {
 	// Allocation des serveurs/ports
 	Sites = (char**) malloc(NSites * sizeof(char*));
 	Ports = (int*) malloc(NSites * sizeof(int));
+	Responses = (int*) malloc(NSites * sizeof(int));
 
 	for(i=0;i<NSites;i++){
 		Sites[i] = (char*) malloc(20*sizeof(char));
@@ -333,17 +341,19 @@ int main (int argc, char* argv[]) {
 			horloge = max(horloge, horloge_received);
 
 			if(!strcmp(msg_received, "release")){
-
+				receiveRelease(horloge_received,id_received);
 			}else if(!strcmp(msg_received, "request")){
-
+				receiveRequest(horloge_received,id_received);
 			}else if(!strcmp(msg_received, "response")){
-
+				receiveResponse(horloge_received,id_received);
 			}
 
 			// push in queue
 			
-			if(rand()%10 > 7) {
+			if(rand()%10 > 7 && !isInSC) {
 				// demand SC
+				isInSC=1;
+				sendRequest(NSites);
 			}
 
 			close (s_service);
