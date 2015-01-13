@@ -396,13 +396,13 @@ int main (int argc, char* argv[]) {
 			}
 
 			// push in queue
-			if(isInSC && isReady() && front(FILEi)==id){
+			if(isInSC == 1 && isReady() && front(FILEi)==id){
 				printf("Je rentre en SC\n");
 				sendRelease();
 				printf("Je sors de SC\n");
 			}
 			
-			if(rand()%10 > 7 && !isInSC) {
+			if(rand()%10 > 7 && isInSC == 0) {
 				// demand SC
 				printf("Je veux rentrer en SC\n");
 				horloge++;
