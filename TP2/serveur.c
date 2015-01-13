@@ -48,12 +48,18 @@ necessaire
 #include <fcntl.h>
 #include <netdb.h>
 #include <string.h>
+#include "queue.c"
+
+#ifndef max
+	#define max( a, b ) ( ((a) > (b)) ? (a) : (b) )
+#endif
 
 char **Sites;
 int *Ports;
 
 int horloge=0;
 int id;
+struct queue *FILEi;
 
 
 int GetSitePos(int Nbsites, char *argv[]) ;
@@ -133,35 +139,7 @@ void codeMessage(const char* msg, char* msg_out){
 }
 
 void decodeMessage(const char *message_in, int *horloge, int *machine, char *message_out){
-	sscanf(message_in,"%d|%d|%[^\n]",horloge, machine, message_out)
-	/*
-	int len = strlen(message_in);
-	int i=0;
-	
-	char *tmp = (char*) malloc(20*sizeof(char));
-
-	sscanf(message_in,"%d|%d")
-	sprintf(tmp,"");
-	while(message_in[i]!='|'){
-		sprintf(tmp,"%s%c",tmp,message_in[i]);
-		i++;
-	}
-	i++;
-	*horloge=atoi(tmp);
-
-	sprintf(tmp,"");
-	while(message_in[i]!='|'){
-		sprintf(tmp,"%s%c",tmp,message_in[i]);
-		i++;
-	}
-	i++;
-	*machine = atoi(tmp);
-
-	sprintf(message_out,"");
-	while(i<len){
-		sprintf(message_out, "%s%c", message_out, message_in[i]);
-	}
-	*/
+	sscanf(message_in,"%d|%d|%[^\n]",horloge, machine, message_out);
 }
 
 
@@ -191,7 +169,6 @@ void SendSync(char *Site, int Port) {
 	int longtxt;
 	struct sockaddr_in sock_add_emis;
 	int size_sock;
-	int l;
 	
 	if ( (s_emis=socket(AF_INET, SOCK_STREAM,0))==-1) {
 		perror("SendSync : Creation socket");
@@ -217,8 +194,39 @@ void SendSync(char *Site, int Port) {
 	sprintf(chaine,"**SYNCHRO**");
 	longtxt =strlen(chaine);
 	/*Emission d'un message de synchro*/
-	l=write(s_emis,chaine,longtxt);
+	write(s_emis,chaine,longtxt);
 	close (s_emis); 
+}
+
+void sendRelease(int NbSites){
+	char *msg = (char*) malloc(50*sizeof(char));
+	sprintf(msg, "%d|%d|release", horloge, id);
+	sendRequest(NbSites, msg);
+}
+
+void sendRequest(int NbSites){
+	push(FILEi,id);
+	char *msg = (char*) malloc(50*sizeof(char));
+	sprintf(msg, "%d|%d|request", horloge, id);
+	sendRequest(NbSites, msg);
+}
+
+void sendResponse(int NbSites){
+	char *msg = (char*) malloc(50*sizeof(char));
+	sprintf(msg, "%d|%d|response", horloge, id);
+	sendRequest(NbSites, msg);
+}
+
+void receiveRelease(int horloge, int id){
+	
+}
+
+void receiveRequest(int horloge, int id){
+	
+}
+
+void receiveResponse(int horloge, int id){
+	
 }
 
 /***********************************************************************/
@@ -227,12 +235,16 @@ void SendSync(char *Site, int Port) {
 /***********************************************************************/
 
 int main (int argc, char* argv[]) {
+
+	FILEi = (struct queue*) malloc(sizeof(struct queue));
+
+
 	struct sockaddr_in sock_add, sock_add_dist;
 	socklen_t size_sock;
 	int s_ecoute, s_service;
 	char texte[40];
 	int i,l;
-	float t;
+	//float t;
 
 	int PortBase=-1; /*Numero du port de la socket a` creer*/
 	int NSites=-1; /*Nb total de sites*/
@@ -315,10 +327,18 @@ int main (int argc, char* argv[]) {
 			texte[l] ='\0';
 			fflush(0);
 			int horloge_received, id_received;
-			char* msg_received;
-			decodeMessage(texte, horloge_received, id_received, msg_received);
+			char* msg_received=NULL;
+			decodeMessage(texte, &horloge_received, &id_received, msg_received);
 
 			horloge = max(horloge, horloge_received);
+
+			if(!strcmp(msg_received, "release")){
+
+			}else if(!strcmp(msg_received, "request")){
+
+			}else if(!strcmp(msg_received, "response")){
+
+			}
 
 			// push in queue
 			
@@ -331,10 +351,7 @@ int main (int argc, char* argv[]) {
 	
 
 		/* Petite boucle d'attente : c'est ici que l'on peut faire des choses*/
-		for(l=0;l<1000000;l++) { 
-			t=t*3;
-			t=t/3;
-		}
+		usleep(100000);
 		
 		printf(".");fflush(0); /* pour montrer que le serveur est actif*/
 	}

@@ -11,13 +11,8 @@
 
 int main(int argc, char const *argv[])
 {
-	char* msg = (char*) malloc(50*sizeof(char));
-	int horloge;
-	int machine;
-	char* msg2 = (char*) malloc(50*sizeof(char));
-	sprintf(msg,"58|126|encule de merde");
-	sscanf(msg,"%d|%d|%[^\n]",&machine,&horloge,msg2);
-	printf("message : %s\n", msg);
-	printf("%d|%d|%s\n", machine,horloge,msg2);
+	int i,j;
+	i = j = 1;
+	printf("truc %d %d\n", i, j);
 	return 0;
 }
